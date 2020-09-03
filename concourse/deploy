@@ -72,8 +72,7 @@ def how_to_use_generated_pipeline_message():
     cmd += '    -c ' + ARGS.output_filepath + ' \\\n'
     cmd += '    -l ~/workspace/gp-continuous-integration/secrets/gpdb_common-ci-secrets.yml \\\n'
     cmd += '    -l ~/workspace/pxf/concourse/settings/pxf-multinode-params.yml \\\n'
-    cmd += '    -l ~/workspace/gp-continuous-integration/secrets/ccp_ci_secrets_ud.yml \\\n'
-    cmd += '    -l ~/workspace/gp-continuous-integration/secrets/ccp_ci_secrets_ud_kerberos.yml \\\n'
+    cmd += '    -l ~/workspace/gp-continuous-integration/secrets/pxf_secrets.yml \\\n'
 
     if ARGS.gpdb_branch != '5X_STABLE':
         cmd += '    -l ~/workspace/gp-continuous-integration/secrets/gpdb-6X_STABLE-release-secrets.prod.yml \\\n'

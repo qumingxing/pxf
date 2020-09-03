@@ -42,7 +42,7 @@ fly -t ud set-pipeline \
     -c /Users/fguerrero/workspace/pxf/concourse/pipelines/cloudbuild_pipeline.yml \
     -l ~/workspace/gp-continuous-integration/secrets/gp-image-baking-dockerfiles.prod.yml \
     -l ~/workspace/gp-continuous-integration/secrets/gpdb_common-ci-secrets.yml \
-    -l ~/workspace/gp-continuous-integration/secrets/ccp_ci_secrets_ud.yml \
+    -l ~/workspace/gp-continuous-integration/secrets/pxf_secrets.yml \
     -v pxf-git-branch=master -p cloudbuild
 ```
 
@@ -113,8 +113,7 @@ fly -t ud set-pipeline \
     -c ~/workspace/pxf/concourse/pipelines/longevity_pipeline.yml \
     -l ~/workspace/gp-continuous-integration/secrets/gpdb_common-ci-secrets.yml \
     -l ~/workspace/pxf/concourse/settings/pxf-multinode-params.yml \
-    -l ~/workspace/gp-continuous-integration/secrets/ccp_ci_secrets_ud.yml \
-    -l ~/workspace/gp-continuous-integration/secrets/ccp_ci_secrets_ud_kerberos.yml \
+    -l ~/workspace/gp-continuous-integration/secrets/pxf_secrets.yml \
     -v folder-prefix=dev/pivotal -v test-env=dev \
     -v icw_green_bucket=gpdb5-assert-concourse-builds \
     -v gcs-bucket-intermediates=pivotal-gpdb-concourse-resources-intermediates-prod \
@@ -154,7 +153,7 @@ fly -t ud set-pipeline \
     -c ~/workspace/pxf/concourse/pipelines/pxf_cli_pipeline.yml \
     -l ~/workspace/gp-continuous-integration/secrets/gpdb_common-ci-secrets.yml \
     -l ~/workspace/pxf/concourse/settings/pxf-multinode-params.yml \
-    -l ~/workspace/gp-continuous-integration/secrets/ccp_ci_secrets_ud.yml \
+    -l ~/workspace/gp-continuous-integration/secrets/pxf_secrets.yml \
     -v gcs-bucket-resources-prod=pivotal-gpdb-concourse-resources-prod \
     -v icw_green_bucket_gpdb5=gpdb5-stable-concourse-builds \
     -v icw_green_bucket_gpdb6=gpdb6-stable-concourse-builds \
