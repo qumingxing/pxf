@@ -820,4 +820,18 @@ under the License.
             <resolver>org.greenplum.pxf.plugins.json.JsonResolver</resolver>
         </plugins>
     </profile>
+
+    <!-- SYSTEM PROFILES -->
+    <profile>
+        <name>system:filter</name>
+        <description>
+            The system:filter produces data with the original filter (where
+            clause) that was serialized by the PXF extension.
+        </description>
+        <plugins>
+            <fragmenter>org.greenplum.pxf.diagnostic.FilterVerifyFragmenter</fragmenter>
+            <accessor>org.greenplum.pxf.diagnostic.UserDataVerifyAccessor</accessor>
+            <resolver>org.greenplum.pxf.plugins.hdfs.StringPassResolver</resolver>
+        </plugins>
+    </profile>
 </profiles>
