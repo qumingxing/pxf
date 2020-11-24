@@ -80,6 +80,7 @@ BuildHttpHeaders(CHURL_HEADERS headers,
 		ereport(ERROR,
 				(errcode(ERRCODE_INTERNAL_ERROR),
 				 errmsg("user identity is unknown")));
+	churl_headers_append(headers, "X-GP-ENCODED-HEADER-VALUES", "true");
 	churl_headers_append(headers, "X-GP-USER", ev.GP_USER);
 
 	churl_headers_append(headers, "X-GP-SEGMENT-ID", ev.GP_SEGMENT_ID);
