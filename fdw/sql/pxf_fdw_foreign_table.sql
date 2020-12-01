@@ -179,6 +179,13 @@ CREATE FOREIGN TABLE pxf_fdw_test_table_csv_only ()
     OPTIONS ( resource '/foo', quote '9' );
 
 --
+-- Table creation fails if disable_ppd is non-boolean
+--
+CREATE FOREIGN TABLE pxf_fdw_test_table_disable_ppd ()
+    SERVER pxf_fdw_test_server
+    OPTIONS ( resource '/ppd', disable_ppd '6' );
+
+--
 -- Table creation succeeds if resource is provided and reject_limit is provided correctly
 --
 CREATE FOREIGN TABLE pxf_fdw_test_table_reject_limit (id int, name text)
@@ -198,6 +205,13 @@ CREATE FOREIGN TABLE pxf_fdw_test_table_reject_limit_type (id int, name text)
 CREATE FOREIGN TABLE pxf_fdw_test_table_log_errors (id int, name text)
     SERVER pxf_fdw_test_server
     OPTIONS ( resource '/path/to/resource', reject_limit '4', log_errors 'true' );
+
+--
+-- Table create succeeds if disable_ppd is provided correctly
+--
+CREATE FOREIGN TABLE pxf_fdw_test_table_disable_ppd (id int, name text)
+    SERVER pxf_fdw_test_server
+    OPTIONS ( resource '/path/to/resource', disable_ppd 'true' );
 
 --
 -- Table alteration fails if protocol option is added
@@ -354,3 +368,27 @@ ALTER FOREIGN TABLE pxf_fdw_test_table_log_errors
 --
 ALTER FOREIGN TABLE pxf_fdw_test_table
     OPTIONS ( ADD config '/foo/bar' );
+
+--
+-- Table alteration fails if disable_ppd option is non-boolean
+--
+ALTER FOREIGN TABLE pxf_fdw_test_table
+    OPTIONS ( ADD disable_ppd 'xx' );
+
+--
+-- Table alteration succeeds if disable_ppd option is added
+--
+ALTER FOREIGN TABLE pxf_fdw_test_table
+    OPTIONS ( ADD disable_ppd 'true' );
+
+--
+-- Table alteration succeeds if disable_ppd option is modified
+--
+ALTER FOREIGN TABLE pxf_fdw_test_table
+    OPTIONS ( SET disable_ppd 'false' );
+
+--
+-- Table alteration succeeds if disable_ppd option is dropped
+--
+ALTER FOREIGN TABLE pxf_fdw_test_table
+    OPTIONS ( DROP disable_ppd );

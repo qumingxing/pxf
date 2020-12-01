@@ -27,6 +27,7 @@
 #define FDW_OPTION_REJECT_LIMIT_PERCENT "percent"
 
 #define FDW_OPTION_CONFIG "config"
+#define FDW_OPTION_DISABLE_PPD "disable_ppd"
 #define FDW_OPTION_FORMAT "format"
 #define FDW_OPTION_LOG_ERRORS "log_errors"
 #define FDW_OPTION_MPP_EXECUTE "mpp_execute"
@@ -223,6 +224,22 @@ pxf_fdw_validator(PG_FUNCTION_ARGS)
 		{
 			(void) defGetBoolean(def); /* call is required for validation */
 			log_errors_set = true;
+		}
+		else if (strcmp(def->defname, FDW_OPTION_DISABLE_PPD) == 0)
+		{
+			(void) defGetBoolean(def); /* call is required for validation */
+
+			if (catalog == UserMappingRelationId)
+				ereport(ERROR,
+						(errcode(ERRCODE_FDW_INVALID_OPTION_NAME),
+								errmsg("the %s option cannot be defined at the user mapping level",
+									   FDW_OPTION_DISABLE_PPD)));
+
+			if (catalog == ForeignDataWrapperRelationId)
+				ereport(ERROR,
+						(errcode(ERRCODE_FDW_INVALID_OPTION_NAME),
+								errmsg("the %s option cannot be defined at the foreign-data wrapper level",
+									   FDW_OPTION_DISABLE_PPD)));
 		}
 		else if (IsCopyOption(def->defname))
 			copy_options = lappend(copy_options, def);
@@ -435,6 +452,8 @@ PxfGetOptions(Oid foreigntableid)
 			opt->is_reject_limit_rows = pg_strcasecmp(FDW_OPTION_REJECT_LIMIT_ROWS, defGetString(def)) == 0;
 		else if (strcmp(def->defname, FDW_OPTION_LOG_ERRORS) == 0)
 			opt->log_errors = defGetBoolean(def);
+		else if (strcmp(def->defname, FDW_OPTION_DISABLE_PPD) == 0)
+			opt->disable_ppd = defGetBoolean(def);
 		else if (strcmp(def->defname, FDW_OPTION_FORMAT) == 0)
 		{
 			opt->format = defGetString(def);

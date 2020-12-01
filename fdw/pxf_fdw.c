@@ -309,9 +309,11 @@ pxfGetForeignPlan(PlannerInfo *root,
 				  List *scan_clauses)
 #endif
 {
-	Index		scan_relid = baserel->relid;
+	char			   *where_clauses_str = NULL;
+	List			   *fdw_private;
+	Index				scan_relid = baserel->relid;
 	PxfFdwRelationInfo *fpinfo = (PxfFdwRelationInfo *) baserel->fdw_private;
-	List	 *fdw_private;
+	PxfOptions		   *options = PxfGetOptions(foreigntableid);
 
 	elog(DEBUG5, "pxf_fdw: pxfGetForeignPlan starts on segment: %d", PXF_SEGMENT_ID);
 
@@ -324,14 +326,16 @@ pxfGetForeignPlan(PlannerInfo *root,
 	 */
 	scan_clauses = extract_actual_clauses(scan_clauses, false);
 
+	if (!options->disable_ppd)
+	{
+		/* here we serialize the WHERE clauses */
+		where_clauses_str = SerializePxfFilterQuals(fpinfo->remote_conds);
+	}
+
 	/*
 	 * Build the fdw_private list that will be available to the executor.
 	 * Items in the list must match enum FdwScanPrivateIndex, above.
 	 */
-
-	/* here we serialize the WHERE clauses */
-	char	   *where_clauses_str = SerializePxfFilterQuals(fpinfo->remote_conds);
-
 	fdw_private = list_make2(makeString(where_clauses_str), fpinfo->retrieved_attrs);
 
 	elog(DEBUG5, "pxf_fdw: pxfGetForeignPlan ends on segment: %d", PXF_SEGMENT_ID);

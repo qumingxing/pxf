@@ -122,6 +122,13 @@ CREATE USER MAPPING FOR pxf_fdw_user
     OPTIONS ( config '/foo/bar' );
 
 --
+-- User mapping creation fails if disable_ppd option is provided
+--
+CREATE USER MAPPING FOR pxf_fdw_user
+    SERVER pxf_fdw_test_server
+    OPTIONS ( disable_ppd 'true' );
+
+--
 -- User mapping creation succeeds if protocol option is not provided
 --
 CREATE USER MAPPING FOR pxf_fdw_user
@@ -245,4 +252,11 @@ ALTER USER MAPPING FOR pxf_fdw_user
 ALTER USER MAPPING FOR pxf_fdw_user
     SERVER pxf_fdw_test_server
     OPTIONS ( ADD config '/foo/bar' );
+
+--
+-- User mapping alteration fails if disable_ppd option is added
+--
+ALTER USER MAPPING FOR pxf_fdw_user
+    SERVER pxf_fdw_test_server
+    OPTIONS ( ADD disable_ppd 'true' );
 

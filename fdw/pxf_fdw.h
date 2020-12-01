@@ -39,6 +39,8 @@ typedef struct PxfOptions
 	/* Server doesn't come from options, it is the actual SERVER name */
 	char	   *server;			/* the name of the external server */
 
+	bool		disable_ppd; /* whether to disable predicate push-down */
+
 	/* Defined at options, but it is not visible to FDWs */
 	char		exec_location;	/* execute on MASTER, ANY or ALL SEGMENTS,
 								 * Greenplum MPP specific */

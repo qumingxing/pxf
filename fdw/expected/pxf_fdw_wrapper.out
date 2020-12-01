@@ -154,6 +154,14 @@ CREATE FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
     OPTIONS ( protocol 'pxf_fdw_test', config '/foo/bar' );
 ERROR:  the config option can only be defined at the pg_foreign_server level
 --
+-- Foreign-data wrapper creation fails if disable_ppd option is provided
+--
+CREATE FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
+    HANDLER pxf_fdw_handler
+    VALIDATOR pxf_fdw_validator
+    OPTIONS ( protocol 'pxf_fdw_test', disable_ppd 'true' );
+ERROR:  the disable_ppd option cannot be defined at the foreign-data wrapper level
+--
 -- Foreign-data wrapper succeeds when protocol is provided
 --
 CREATE FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
@@ -272,3 +280,9 @@ ERROR:  the log_errors option can only be defined at the pg_foreign_table level
 ALTER FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
     OPTIONS ( ADD config '/foo/bar' );
 ERROR:  the config option can only be defined at the pg_foreign_server level
+--
+-- Foreign-data wrapper alteration fails if disable_ppd option is added
+--
+ALTER FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
+    OPTIONS ( ADD disable_ppd 'true' );
+ERROR:  the disable_ppd option cannot be defined at the foreign-data wrapper level

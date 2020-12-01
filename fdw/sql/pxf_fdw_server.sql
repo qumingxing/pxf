@@ -108,6 +108,13 @@ CREATE SERVER pxf_fdw_test_server
     OPTIONS ( log_errors 'true' );
 
 --
+-- Server creation fails if disable_ppd option is non-boolean
+--
+CREATE SERVER pxf_fdw_test_server_with_disable_ppd
+    FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
+    OPTIONS ( disable_ppd 'foo' );
+
+--
 -- Server creation succeeds if protocol option is not provided
 --
 CREATE SERVER pxf_fdw_test_server
@@ -119,6 +126,13 @@ CREATE SERVER pxf_fdw_test_server
 CREATE SERVER pxf_fdw_test_server_with_config
     FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
     OPTIONS ( config '/foo/bar' );
+
+--
+-- Server creation succeeds if disable_ppd option is provided
+--
+CREATE SERVER pxf_fdw_test_server_with_disable_ppd
+    FOREIGN DATA WRAPPER pxf_fdw_test_pxf_fdw
+    OPTIONS ( disable_ppd 'true' );
 
 --
 -- Server alteration fails if protocol option is added
@@ -227,4 +241,28 @@ ALTER SERVER pxf_fdw_test_server
 --
 ALTER SERVER pxf_fdw_test_server
     OPTIONS ( DROP config );
+
+--
+-- Server alteration fails if disable_ppd option is non-boolean
+--
+ALTER SERVER pxf_fdw_test_server
+    OPTIONS ( ADD disable_ppd 'bar' );
+
+--
+-- Server alteration succeeds if disable_ppd option is added
+--
+ALTER SERVER pxf_fdw_test_server
+    OPTIONS ( ADD disable_ppd 'true' );
+
+--
+-- Server alteration succeeds if disable_ppd option is modified
+--
+ALTER SERVER pxf_fdw_test_server
+    OPTIONS ( SET disable_ppd 'false' );
+
+--
+-- Server alteration succeeds if disable_ppd option is dropped
+--
+ALTER SERVER pxf_fdw_test_server
+    OPTIONS ( DROP disable_ppd );
 
