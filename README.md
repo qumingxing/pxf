@@ -111,15 +111,46 @@ make
 make test
 ```
 
-## How to Install PXF
+## How to Install PXF locally
 
 To install PXF, first make sure that the user has sufficient permissions in the `$GPHOME` and `$PXF_HOME` directories to perform the installation. It's recommended to change ownership to match the installing user. For example, when installing PXF as user `gpadmin` under `/usr/local/greenplum-db`:
+
+If `${HOME}/pxf-boot` does not exist, please create it: `mkdir ${HOME}/pxf-boot`. This command should only need to be run once.
 
 ```bash
 export GPHOME=/usr/local/greenplum-db
 export PXF_HOME=/usr/local/pxf
+export PXF_BASE=${HOME}/pxf-boot
 chown -R gpadmin:gpadmin "${GPHOME}" "${PXF_HOME}"
 make -C ~/workspace/pxf install
+```
+
+NOTE: if `PXF_BASE` is not properly set up, there is a possibility that the user's existing server configurations may get deleted.
+
+## How to Run PXF locally
+
+Ensure that PXF is in your path. This command can be added to your .bashrc
+```bash
+export PATH=/usr/local/pxf/bin:$PATH
+```
+
+Then you can prepare and start up PXF by doing the following.
+```bash
+pxf prepare
+pxf start
+```
+
+## Re-installing PXF after making changes
+Note: Local development with PXF requires a running GPDB6 cluster.
+
+Once the desired changes have been made, there are 2 options to re-install PXF:
+
+1. Run `make -sj4 install` to re-install and run tests
+2. Run `make -sj4 install-server` to only re-install PXF without running tests.
+
+After PXF has been re-installed, you can restart the PXF instance using:
+```bash
+pxf restart
 ```
 
 ## How to demonstrate Hadoop Integration
@@ -132,11 +163,20 @@ cd ~/workspace
 tar xzf singlecluster-HDP.tar.gz
 ```
 
+Create a symlink using `ln -s ~/workspace/singlecluster-HDP ~/workspace/singlecluster` and then follow the steps in [Setup Hadoop](#Setup-Hadoop).
+
+Initialize the default server configurations:
+```
+cp ${PXF_HOME}/templates/{hdfs,mapred,yarn,core,hbase,hive}-site.xml ${PXF_BASE}/servers/default
+```
+
 # Development With Docker
 NOTE: Since the docker container will house all Single cluster Hadoop, Greenplum and PXF, we recommend that you have at least 4 cpus and 6GB memory allocated to Docker. These settings are available under docker preferences.
 
-The following commands run the docker container and set up and switch to user gpadmin.
+The following commands run the docker container and set up and switch to user gpadmin. They assume tat the user is running GPDB5
 
+
+<!-- TODO: is there something that would work for GPDB6? -->
 ```bash
 # Get the latest image
 export GCR_PROJECT=<YOUR-GOOGLE_CONTAINER_REGISTRY-PROJECT-NAME>
@@ -152,13 +192,13 @@ docker run --rm -it \
   -p 9090:9090 \
   -p 50070:50070 \
   -w /home/gpadmin/workspace \
+  -v ~/workspace/gpdb:/home/gpadmin/workspace/gpdb \
   -v ~/workspace/pxf:/home/gpadmin/workspace/pxf \
   -v ~/workspace/singlecluster-HDP:/home/gpadmin/workspace/singlecluster \
   gcr.io/$GCR_PROJECT/gpdb-pxf-dev/gpdb6-centos7-test-pxf:latest /bin/bash -c \
-  "/home/gpadmin/workspace/pxf/dev/indocker_setup.bash && /sbin/service sshd start && su - gpadmin"
+  "/home/gpadmin/workspace/pxf/dev/set_up_gpadmin_user.bash && /usr/sbin/sshd && su - gpadmin"
 
 ```
-
 
 ```bash
 # Get the latest image
@@ -178,15 +218,19 @@ docker run --rm -it \
   -v ~/workspace/gpdb:/home/gpadmin/workspace/gpdb \
   -v ~/workspace/pxf:/home/gpadmin/workspace/pxf \
   -v ~/workspace/singlecluster-HDP:/home/gpadmin/workspace/singlecluster \
-  pivotaldata/gpdb-pxf-dev:centos6 /bin/bash -c \
-  "/home/gpadmin/workspace/pxf/dev/set_up_gpadmin_user.bash && /sbin/service sshd start && su - gpadmin"
+  pivotaldata/gpdb-pxf-dev:centos7 /bin/bash -c \
+  "/home/gpadmin/workspace/pxf/dev/set_up_gpadmin_user.bash && /usr/sbin/sshd && su - gpadmin"
 ```
 
-### Setup GPDB
+### Setup GPDB5 in the Docker image
 
 Configure, build and install GPDB. This will be needed only when you use the container for the first time with GPDB source.
+
+<!-- TODO: This may be because we no longer use greenplum-db-devel?-->
 ```bash
 ~/workspace/pxf/dev/build_gpdb.bash
+sudo mkdir /usr/local/greenplum-db-devel
+sudo chown gpadmin:gpadmin /usr/local/greenplum-db-devel
 ~/workspace/pxf/dev/install_gpdb.bash
 ```
 
@@ -215,6 +259,11 @@ Setup [User Impersonation](https://hadoop.apache.org/docs/current/hadoop-project
 ~/workspace/pxf/dev/configure_singlecluster.bash
 ```
 
+While PXF can run on either Java 8 or Java 11, please ensure that you are running Java 8 for hdfs etc. You can set your java version using `JAVA_HOME` like so:
+```
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+````
+
 Setup and start HDFS
 ```bash
 pushd ~/workspace/singlecluster/bin
@@ -235,6 +284,7 @@ pushd ~/workspace/singlecluster/bin
 ./start-hbase.sh
 popd
 ```
+
 ### Setup Minio (optional)
 Minio is an S3-API compatible local storage solution. The development docker image comes with Minio software pre-installed. To start the Minio server, run the following script:
 ```bash
@@ -312,6 +362,13 @@ $PXF_HOME/bin/pxf start
 no JDK set for Gradle. Just cancel and retry. It goes away the second time.
 - Restart IntelliJ
 - Check that it worked by running a test (Cmd+O)
+
+### Debugging the locally running instance of PXF server using IntelliJ
+
+- In IntelliJ, click `Edit Configuration` and add a new one of type `Remote`
+- Change the name to `PXF Service Boot`
+- Change the port number to `2020`
+- Save and run a query in GPDB that uses PXF to debug with IntelliJ
 
 # To run a Kerberized Hadoop Cluster
 
