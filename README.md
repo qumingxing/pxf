@@ -115,8 +115,6 @@ make test
 
 To install PXF, first make sure that the user has sufficient permissions in the `$GPHOME` and `$PXF_HOME` directories to perform the installation. It's recommended to change ownership to match the installing user. For example, when installing PXF as user `gpadmin` under `/usr/local/greenplum-db`:
 
-If `${HOME}/pxf-boot` does not exist, please create it: `mkdir ${HOME}/pxf-boot`. This command should only need to be run once.
-
 ```bash
 export GPHOME=/usr/local/greenplum-db
 export PXF_HOME=/usr/local/pxf
@@ -125,7 +123,7 @@ chown -R gpadmin:gpadmin "${GPHOME}" "${PXF_HOME}"
 make -C ~/workspace/pxf install
 ```
 
-NOTE: if `PXF_BASE` is not properly set up, there is a possibility that the user's existing server configurations may get deleted.
+NOTE: if `PXF_BASE` is not set, it will default to `PXF_HOME`, and server configurations, libraries or other configurations, might get deleted after a PXF re-install.
 
 ## How to Run PXF locally
 
@@ -139,14 +137,15 @@ Then you can prepare and start up PXF by doing the following.
 pxf prepare
 pxf start
 ```
+If `${HOME}/pxf-boot` does not exist, `pxf prepare` will create the directory for you. This command should only need to be run once.
 
 ## Re-installing PXF after making changes
-Note: Local development with PXF requires a running GPDB6 cluster.
+Note: Local development with PXF requires a running Greenplum cluster.
 
 Once the desired changes have been made, there are 2 options to re-install PXF:
 
 1. Run `make -sj4 install` to re-install and run tests
-2. Run `make -sj4 install-server` to only re-install PXF without running tests.
+2. Run `make -sj4 install-server` to only re-install the PXF server without running unit tests.
 
 After PXF has been re-installed, you can restart the PXF instance using:
 ```bash
@@ -259,7 +258,9 @@ Setup [User Impersonation](https://hadoop.apache.org/docs/current/hadoop-project
 ~/workspace/pxf/dev/configure_singlecluster.bash
 ```
 
-While PXF can run on either Java 8 or Java 11, please ensure that you are running Java 8 for hdfs etc. You can set your java version using `JAVA_HOME` like so:
+While PXF can run on either Java 8 or Java 11, please ensure that you are running Java 8 for hdfs etc. Please set your java version by seting your `JAVA_HOME` to the appropriate location.
+
+On a Mac, you can set your java version using `JAVA_HOME` like so:
 ```
 export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 ````
